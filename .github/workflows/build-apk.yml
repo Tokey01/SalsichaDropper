@@ -1,4 +1,3 @@
-
 name: Build APK
 
 on:
@@ -24,7 +23,9 @@ jobs:
           java-version: '17'
 
       - name: Configurar Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
 
       - name: Instalar ferramentas Android
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
@@ -47,4 +48,3 @@ jobs:
           name: Salsicha-Dropper-APK
           path: source/SalsichaDropperAndroid/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-          
