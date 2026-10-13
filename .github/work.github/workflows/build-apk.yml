@@ -1,0 +1,51 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar arquivos do repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
+          cmdline-tools-version: 11076708   # versão 12.0 (já existe no runner)
+
+      - name: Instalar ferramentas Android
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Extrair projeto Android
+        run: unzip -q SalsichaDropperAndroid.zip -d source
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Compilar APK
+        working-directory: source/SalsichaDropperAndroid
+        run: gradle --no-daemon assembleDebug
+
+      - name: Disponibilizar APK para baixar
+        uses: actions/upload-artifact@v4
+        with:
+          name: Salsicha-Dropper-APK
+          path: source/SalsichaDropperAndroid/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
